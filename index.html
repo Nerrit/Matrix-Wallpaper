@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <style>
+            /* basic reset */
+
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: black;
+            }
+
+            canvas {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        </style>
+    </head>
+    <body>
+
+        <canvas id="layer1"></canvas>
+        <canvas id="layer2"></canvas>
+
+        <script>
+		    /*
+    	     * Made by OmegaMaxx;
+             * Do NOT Copy;
+    	     */
+
+            // geting canvas by id c
+            var l1 = document.getElementById("layer1");
+            var ctx1 = l1.getContext("2d");
+            var l2 = document.getElementById("layer2");
+            var ctx2 = l2.getContext("2d");
+
+            // making the canvas full screen
+            var wh = window.innerHeight;
+            var ww = window.innerWidth;
+            l1.width = l2.width = ww;
+            l1.height = l2.height = wh;
+
+            // generating needed values
+            var color = "#00ff00";
+            var matrix = "\"\\`1234567890-=!@#$%^&*(){}_+qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOPASDFGHJKLZXCVBNM<>´?;'|~١٢٣٤٥٦٧٨٩şç阿贝瑟德耶艾弗给哈伊尤特卡艾勒艾马艾娜哦佩酷艾儿艾丝特乌法斯艾普瑟轮贼特诶俄玉艾丝贼特١٢٣٤٥٦٧٨٩şçㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣБбвГгДдЁёЖжИиЙйКкЛлФфЦцЧчШшЩщъыьЭэЮюПпЯяアカサタナハマヤラワイキシチニヒミリヰウクスツヌフムユルエケセテネヘメレヱオコソトノホモヨロヲンあかさたなはまやらわいきしちにひみりゐうくすつぬふむゆるえけせてねへめれゑおこそとのほもよろをん";
+            var interval1 = 35;
+            var interval2 = 45;
+            var background = "rgba(0, 0, 0, 0.04)";
+            var fontSize = 10;
+            var secondLayer = false;
+            var si1, si2;
+
+            // import values from project.json
+            window.wallpaperPropertyListener = {
+                applyUserProperties: function(properties) {
+                    if (properties.color) {
+                        var colorRGB = properties.color.value.split(" ");
+                        color = rgbToHex(Math.floor(colorRGB[0] * 255), Math.floor(colorRGB[1] * 255), Math.floor(colorRGB[2] * 255), 255);
+                    }
+
+                    if (properties.characters)
+                        matrix = properties.characters.value;
+
+                    if (properties.background) {
+                        var backgroundColor = properties.background.value.split(" ");
+                        background = rgbToHex(Math.floor(backgroundColor[0] * 255), Math.floor(backgroundColor[1] * 255), Math.floor(backgroundColor[2] * 255), Math.floor(0.04 * 255));
+                    }
+
+                    if (properties.interval) {
+                        interval1 = properties.interval.value;
+                        clearInterval(si1);
+                        si1 = setInterval(draw1, interval1);
+                    }
+
+                    if (properties.fontsize) {
+                        fontSize = properties.fontsize.value;
+                        calcFont();
+                    }
+
+                    if (properties.secondlayer) {
+                        secondLayer = properties.secondlayer.value;
+                        if (!secondLayer) {
+                            l2.style.display="none";
+                            clearInterval(si2);
+                        } else {
+                            calcFont();
+                            wait(wh / fontSize * interval);
+                            si2 = setInterval(draw2, interval2);
+                        }
+                    }
+                }
+            };
+
+            // convert rgb value to a hex value
+            var rgbToHex = function (r, g, b, a) {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1) + (a | 1 << 8).toString(16).slice(1);
+            };
+
+            matrix = matrix.split("");
+            var drops1 = [];
+            var drops2 = [];
+            calcFont();
+
+            function calcFont() {
+                var columns = ww / fontSize;
+                for (var i = 0; i < columns; i++)
+                    drops1[i] = 1;
+                if (secondLayer)
+                    for (var i = 0; i < columns; i++)
+                        drops2[i] = 1;
+            }
+
+            function drawCanvas(ctx, drops) {
+                ctx.fillStyle = background;
+                ctx.fillRect(0, 0, ww, wh);
+
+                ctx.fillStyle = color;
+                ctx.font = fontSize + "px arial";
+                for (var i = 0; i < drops.length; i++) {
+                    var text = matrix[Math.floor(Math.random() * matrix.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > wh && Math.random() > 0.975)
+                        drops[i] = 0;
+                    drops[i]++;
+                }
+            }
+
+            function draw1() {
+                drawCanvas(ctx1, drops1);
+            }
+
+            function draw2() {
+                drawCanvas(ctx2, drops2);
+            }
+
+            si1 = setInterval(draw1, interval1);
+            if (secondLayer) {
+                wait(wh / fontSize * interval);
+                si2 = setInterval(draw2, interval2);
+            }
+
+        </script>
+    </body>
+</html>
